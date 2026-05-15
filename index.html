@@ -9,17 +9,24 @@ html, body, #canvas {
 	margin: 0;
 	padding: 0;
 	border: 0;
+	width: 100%;
+	height: 100%;
 }
 
 body {
 	color: white;
-	background-color: black;
+	background:
+		radial-gradient(circle at top, rgba(255, 208, 92, 0.12), transparent 42%),
+		linear-gradient(180deg, #18130f 0%, #0d0d0d 100%);
 	overflow: hidden;
 	touch-action: none;
+	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
 }
 
 #canvas {
 	display: block;
+	width: 100%;
+	height: 100%;
 }
 
 #canvas:focus {
@@ -38,7 +45,9 @@ body {
 }
 
 #status {
-	background-color: #242424;
+	background:
+		radial-gradient(circle at top, rgba(255, 197, 87, 0.16), transparent 36%),
+		linear-gradient(180deg, #1c1712 0%, #0d0d0d 100%);
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -47,9 +56,7 @@ body {
 }
 
 #status-splash {
-	max-height: 100%;
-	max-width: 100%;
-	margin: auto;
+	display: none;
 }
 
 #status-splash.show-image--false {
@@ -71,9 +78,28 @@ body {
 }
 
 #status-progress {
-	bottom: 10%;
-	width: 50%;
-	margin: 0 auto;
+	position: static;
+	display: block;
+	width: min(72vw, 260px);
+	height: 12px;
+	margin: 0;
+	appearance: none;
+	border: 3px solid #2f2418;
+	border-radius: 999px;
+	background: rgba(0, 0, 0, 0.28);
+	overflow: hidden;
+}
+
+#status-progress::-webkit-progress-bar {
+	background: rgba(0, 0, 0, 0.28);
+}
+
+#status-progress::-webkit-progress-value {
+	background: linear-gradient(90deg, #ffcf62 0%, #ff944d 100%);
+}
+
+#status-progress::-moz-progress-bar {
+	background: linear-gradient(90deg, #ffcf62 0%, #ff944d 100%);
 }
 
 #status-notice {
@@ -88,6 +114,93 @@ body {
 	padding: 1rem;
 	text-align: center;
 	z-index: 1;
+}
+
+#status-loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+	width: min(84vw, 320px);
+	padding: 26px 24px 22px;
+	border: 3px solid rgba(255, 214, 132, 0.28);
+	border-radius: 28px;
+	background: rgba(20, 16, 12, 0.86);
+	box-shadow: 0 18px 60px rgba(0, 0, 0, 0.3);
+	backdrop-filter: blur(8px);
+}
+
+#loading-stage {
+	position: relative;
+	width: 168px;
+	height: 168px;
+	border-radius: 24px;
+	background:
+		radial-gradient(circle at top, rgba(255, 215, 138, 0.35), transparent 40%),
+		linear-gradient(180deg, #f8e8c8 0%, #e7d2b4 100%);
+	box-shadow: inset 0 -8px 0 rgba(77, 58, 34, 0.12);
+	overflow: hidden;
+}
+
+#loading-stage::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	bottom: 14px;
+	width: 86px;
+	height: 22px;
+	transform: translateX(-50%);
+	border-radius: 50%;
+	background: rgba(65, 48, 33, 0.18);
+	filter: blur(3px);
+}
+
+.loading-part {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	image-rendering: pixelated;
+}
+
+#loading-bag {
+	position: absolute;
+	right: 18px;
+	bottom: 18px;
+	width: 38px;
+	height: auto;
+	image-rendering: pixelated;
+	transform: rotate(-7deg);
+	filter: drop-shadow(0 5px 0 rgba(0, 0, 0, 0.14));
+}
+
+#loading-copy {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	text-align: center;
+}
+
+#loading-title {
+	font-size: 30px;
+	font-weight: 800;
+	letter-spacing: 0.02em;
+	color: #fff7eb;
+}
+
+#loading-subtitle {
+	font-size: 14px;
+	line-height: 1.5;
+	color: rgba(255, 244, 225, 0.82);
+}
+
+#loading-roll {
+	font-size: 13px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #ffcf62;
 }
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="amagame-favicon-v2.png" />
@@ -106,7 +219,20 @@ body {
 		</noscript>
 
 		<div id="status">
-			<img id="status-splash" class="show-image--true fullsize--true use-filter--true" src="index.png" alt="">
+			<img id="status-splash" class="show-image--false fullsize--true use-filter--true" src="index.png" alt="">
+			<div id="status-loading">
+				<div id="loading-stage" aria-hidden="true">
+					<img id="loading-legs" class="loading-part" src="loading-assets/legs_01_idle.png" alt="">
+					<img id="loading-body" class="loading-part" src="loading-assets/body_01_idle.png" alt="">
+					<img id="loading-head" class="loading-part" src="loading-assets/head_01_open.png" alt="">
+					<img id="loading-bag" src="loading-assets/garbage_bag.png" alt="">
+				</div>
+				<div id="loading-copy">
+					<div id="loading-title">AmaGame</div>
+					<div id="loading-subtitle">阿罵提著垃圾袋趕來中...<br>每局都會隨機生成不同阿罵。</div>
+					<div id="loading-roll">Loading Ama...</div>
+				</div>
+			</div>
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
@@ -121,15 +247,84 @@ const engine = new Engine(GODOT_CONFIG);
 	const statusOverlay = document.getElementById('status');
 	const statusProgress = document.getElementById('status-progress');
 	const statusNotice = document.getElementById('status-notice');
+	const loadingHead = document.getElementById('loading-head');
+	const loadingBody = document.getElementById('loading-body');
+	const loadingLegs = document.getElementById('loading-legs');
+	const loadingRoll = document.getElementById('loading-roll');
 
 	let initializing = true;
 	let statusMode = '';
+	let loadingBlinkInterval = null;
+	let loadingComboInterval = null;
+	let currentHeadIndex = 1;
+	let headEyesOpen = true;
+
+	const LOADING_HEAD_OPTIONS = [1, 2, 3, 4, 5];
+	const LOADING_BODY_OPTIONS = [1, 2, 3, 4, 5];
+	const LOADING_LEG_OPTIONS = [1, 2, 3, 4];
+	const LOADING_TAGLINES = [
+		'Loading Ama...',
+		'阿罵套裝抽卡中...',
+		'本局角色生成中...',
+		'垃圾袋已就位...',
+		'阿罵暖身中...',
+	];
+
+	function pad2(num) {
+		return String(num).padStart(2, '0');
+	}
+
+	function pickRandom(list) {
+		return list[Math.floor(Math.random() * list.length)];
+	}
+
+	function refreshLoadingHead() {
+		const suffix = headEyesOpen ? 'open' : 'close';
+		loadingHead.src = `loading-assets/head_${pad2(currentHeadIndex)}_${suffix}.png`;
+	}
+
+	function randomizeLoadingAma() {
+		currentHeadIndex = pickRandom(LOADING_HEAD_OPTIONS);
+		const bodyIndex = pickRandom(LOADING_BODY_OPTIONS);
+		const legsIndex = pickRandom(LOADING_LEG_OPTIONS);
+		headEyesOpen = true;
+		refreshLoadingHead();
+		loadingBody.src = `loading-assets/body_${pad2(bodyIndex)}_idle.png`;
+		loadingLegs.src = `loading-assets/legs_${pad2(legsIndex)}_idle.png`;
+		loadingRoll.textContent = pickRandom(LOADING_TAGLINES);
+	}
+
+	function stopLoadingAnimation() {
+		if (loadingBlinkInterval !== null) {
+			clearInterval(loadingBlinkInterval);
+			loadingBlinkInterval = null;
+		}
+		if (loadingComboInterval !== null) {
+			clearInterval(loadingComboInterval);
+			loadingComboInterval = null;
+		}
+	}
+
+	function startLoadingAnimation() {
+		randomizeLoadingAma();
+		stopLoadingAnimation();
+		loadingBlinkInterval = window.setInterval(() => {
+			headEyesOpen = !headEyesOpen;
+			refreshLoadingHead();
+		}, 360);
+		loadingComboInterval = window.setInterval(() => {
+			randomizeLoadingAma();
+		}, 1200);
+	}
+
+	startLoadingAnimation();
 
 	function setStatusMode(mode) {
 		if (statusMode === mode || !initializing) {
 			return;
 		}
 		if (mode === 'hidden') {
+			stopLoadingAnimation();
 			statusOverlay.remove();
 			initializing = false;
 			return;
@@ -152,6 +347,7 @@ const engine = new Engine(GODOT_CONFIG);
 	}
 
 	function displayFailureNotice(err) {
+		stopLoadingAnimation();
 		console.error(err);
 		if (err instanceof Error) {
 			setStatusNotice(err.message);
