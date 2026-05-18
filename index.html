@@ -125,50 +125,48 @@ body {
 	width: min(84vw, 320px);
 	padding: 26px 24px 22px;
 	border-radius: 28px;
-	background: rgba(20, 16, 12, 0.78);
-	box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+	background:
+		radial-gradient(circle at top, rgba(255, 236, 191, 0.92), rgba(247, 226, 185, 0.96) 42%, rgba(233, 207, 162, 0.98) 100%);
+	box-shadow: 0 18px 60px rgba(0, 0, 0, 0.2);
 	backdrop-filter: blur(8px);
 }
 
 #loading-stage {
 	position: relative;
-	width: 168px;
-	height: 168px;
-	border-radius: 24px;
-	background:
-		radial-gradient(circle at top, rgba(255, 215, 138, 0.35), transparent 40%),
-		linear-gradient(180deg, #f8e8c8 0%, #e7d2b4 100%);
-	box-shadow: inset 0 -8px 0 rgba(77, 58, 34, 0.12);
-	overflow: hidden;
+	width: 186px;
+	height: 188px;
+	overflow: visible;
 }
 
 #loading-stage::after {
 	content: "";
 	position: absolute;
 	left: 50%;
-	bottom: 14px;
-	width: 86px;
-	height: 22px;
+	bottom: 8px;
+	width: 94px;
+	height: 20px;
 	transform: translateX(-50%);
 	border-radius: 50%;
-	background: rgba(65, 48, 33, 0.18);
+	background: rgba(72, 52, 31, 0.16);
 	filter: blur(3px);
 }
 
 .loading-part {
 	position: absolute;
-	inset: 0;
-	width: 100%;
-	height: 100%;
+	inset: 8px 10px 18px;
+	width: calc(100% - 20px);
+	height: calc(100% - 26px);
 	object-fit: contain;
 	image-rendering: pixelated;
+	transform: translateY(4px);
+	transform-origin: center bottom;
 }
 
 #loading-bag {
 	position: absolute;
-	right: 10px;
-	bottom: 2px;
-	width: 58px;
+	right: 4px;
+	bottom: -8px;
+	width: 60px;
 	height: auto;
 	image-rendering: pixelated;
 	transform: rotate(-7deg);
@@ -187,20 +185,20 @@ body {
 	font-size: 30px;
 	font-weight: 800;
 	letter-spacing: 0.02em;
-	color: #fff7eb;
+	color: #352313;
 }
 
 #loading-subtitle {
 	font-size: 16px;
 	line-height: 1.35;
-	color: rgba(255, 244, 225, 0.82);
+	font-weight: 600;
+	color: rgba(83, 57, 31, 0.9);
 }
 
 #loading-roll {
 	font-size: 13px;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	color: #ffcf62;
+	letter-spacing: 0.02em;
+	color: #a05d1c;
 }
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="amagame-favicon-v2.png" />
@@ -229,7 +227,7 @@ body {
 				</div>
 				<div id="loading-copy">
 					<div id="loading-title">AmaGame</div>
-					<div id="loading-subtitle">阿罵提著垃圾袋趕來中...</div>
+					<div id="loading-subtitle">阮叨欸阿嬤起床嘍...</div>
 					<div id="loading-roll">Loading Ama...</div>
 				</div>
 			</div>
@@ -264,10 +262,11 @@ const engine = new Engine(GODOT_CONFIG);
 	const LOADING_LEG_OPTIONS = [1, 2, 3, 4];
 	const LOADING_TAGLINES = [
 		'Loading Ama...',
-		'阿罵套裝抽卡中...',
-		'本局角色生成中...',
-		'垃圾袋已就位...',
-		'阿罵暖身中...',
+		'垃圾袋拎好勢...',
+		'巷口彼台車欲來矣...',
+		'等咧就出門...',
+		'今日欲拚一粒好球...',
+		'阿罵 mode 載入中...',
 	];
 
 	function pad2(num) {
