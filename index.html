@@ -9,24 +9,17 @@ html, body, #canvas {
 	margin: 0;
 	padding: 0;
 	border: 0;
-	width: 100%;
-	height: 100%;
 }
 
 body {
 	color: white;
-	background:
-		radial-gradient(circle at top, rgba(255, 208, 92, 0.12), transparent 42%),
-		linear-gradient(180deg, #18130f 0%, #0d0d0d 100%);
+	background-color: black;
 	overflow: hidden;
 	touch-action: none;
-	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
 }
 
 #canvas {
 	display: block;
-	width: 100%;
-	height: 100%;
 }
 
 #canvas:focus {
@@ -45,9 +38,7 @@ body {
 }
 
 #status {
-	background:
-		radial-gradient(circle at top, rgba(255, 197, 87, 0.16), transparent 36%),
-		linear-gradient(180deg, #1c1712 0%, #0d0d0d 100%);
+	background-color: #242424;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -56,7 +47,9 @@ body {
 }
 
 #status-splash {
-	display: none;
+	max-height: 100%;
+	max-width: 100%;
+	margin: auto;
 }
 
 #status-splash.show-image--false {
@@ -78,29 +71,9 @@ body {
 }
 
 #status-progress {
-	position: static;
-	display: block;
-	width: min(72vw, 260px);
-	height: 12px;
-	margin: 2px 0 0;
-	appearance: none;
-	border: 3px solid #2f2418;
-	border-radius: 999px;
-	background: rgba(0, 0, 0, 0.28);
-	overflow: hidden;
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24);
-}
-
-#status-progress::-webkit-progress-bar {
-	background: rgba(0, 0, 0, 0.28);
-}
-
-#status-progress::-webkit-progress-value {
-	background: linear-gradient(90deg, #ffcf62 0%, #ff944d 100%);
-}
-
-#status-progress::-moz-progress-bar {
-	background: linear-gradient(90deg, #ffcf62 0%, #ff944d 100%);
+	bottom: 10%;
+	width: 50%;
+	margin: 0 auto;
 }
 
 #status-notice {
@@ -116,95 +89,10 @@ body {
 	text-align: center;
 	z-index: 1;
 }
-
-#status-loading {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 16px;
-	width: min(84vw, 320px);
-	padding: 26px 24px 22px;
-	border-radius: 28px;
-	background:
-		radial-gradient(circle at top, rgba(255, 236, 191, 0.92), rgba(247, 226, 185, 0.96) 42%, rgba(233, 207, 162, 0.98) 100%);
-	box-shadow: 0 18px 60px rgba(0, 0, 0, 0.2);
-	backdrop-filter: blur(8px);
-}
-
-#loading-stage {
-	position: relative;
-	width: 186px;
-	height: 188px;
-	overflow: visible;
-}
-
-#loading-stage::after {
-	content: "";
-	position: absolute;
-	left: 50%;
-	bottom: 8px;
-	width: 94px;
-	height: 20px;
-	transform: translateX(-50%);
-	border-radius: 50%;
-	background: rgba(72, 52, 31, 0.16);
-	filter: blur(3px);
-}
-
-.loading-part {
-	position: absolute;
-	inset: 8px 10px 18px;
-	width: calc(100% - 20px);
-	height: calc(100% - 26px);
-	object-fit: contain;
-	image-rendering: pixelated;
-	transform: translateY(4px);
-	transform-origin: center bottom;
-}
-
-#loading-bag {
-	position: absolute;
-	right: 4px;
-	bottom: -8px;
-	width: 60px;
-	height: auto;
-	image-rendering: pixelated;
-	transform: rotate(-7deg);
-	filter: drop-shadow(0 5px 0 rgba(0, 0, 0, 0.14));
-}
-
-#loading-copy {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 8px;
-	text-align: center;
-}
-
-#loading-title {
-	font-size: 30px;
-	font-weight: 800;
-	letter-spacing: 0.02em;
-	color: #352313;
-}
-
-#loading-subtitle {
-	font-size: 16px;
-	line-height: 1.35;
-	font-weight: 600;
-	color: rgba(83, 57, 31, 0.9);
-}
-
-#loading-roll {
-	font-size: 13px;
-	letter-spacing: 0.02em;
-	color: #a05d1c;
-}
 		</style>
-		<link id="-gd-engine-icon" rel="icon" type="image/png" href="amagame-favicon-v2.png" />
-<link rel="apple-touch-icon" sizes="180x180" href="amagame-home-180-v2.png"/>
-<link rel="apple-touch-icon-precomposed" sizes="180x180" href="amagame-home-180-v2.png"/>
-<link rel="manifest" href="index.manifest-v2.json">
+		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
+<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
+<link rel="manifest" href="index.manifest.json">
 <meta name="theme-color" content="#111111"><style>input,textarea{font-size:16px!important;}</style>
 	</head>
 	<body>
@@ -217,27 +105,14 @@ body {
 		</noscript>
 
 		<div id="status">
-			<img id="status-splash" class="show-image--false fullsize--true use-filter--true" src="index.png" alt="">
-			<div id="status-loading">
-				<div id="loading-stage" aria-hidden="true">
-					<img id="loading-legs" class="loading-part" src="loading-assets/legs_01_idle.png" alt="">
-					<img id="loading-body" class="loading-part" src="loading-assets/body_01_idle.png" alt="">
-					<img id="loading-head" class="loading-part" src="loading-assets/head_01_open.png" alt="">
-					<img id="loading-bag" src="loading-assets/garbage_bag.png" alt="">
-				</div>
-				<div id="loading-copy">
-					<div id="loading-title">AmaGame</div>
-					<div id="loading-subtitle">阮叨欸阿嬤起床嘍...</div>
-					<div id="loading-roll">Loading Ama...</div>
-				</div>
-			</div>
+			<img id="status-splash" class="show-image--true fullsize--true use-filter--true" src="index.png" alt="">
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":27447380,"index.wasm":37685705},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":34921848,"index.wasm":37685705},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -245,85 +120,15 @@ const engine = new Engine(GODOT_CONFIG);
 	const statusOverlay = document.getElementById('status');
 	const statusProgress = document.getElementById('status-progress');
 	const statusNotice = document.getElementById('status-notice');
-	const loadingHead = document.getElementById('loading-head');
-	const loadingBody = document.getElementById('loading-body');
-	const loadingLegs = document.getElementById('loading-legs');
-	const loadingRoll = document.getElementById('loading-roll');
 
 	let initializing = true;
 	let statusMode = '';
-	let loadingBlinkInterval = null;
-	let loadingComboInterval = null;
-	let currentHeadIndex = 1;
-	let headEyesOpen = true;
-
-	const LOADING_HEAD_OPTIONS = [1, 2, 3, 4, 5];
-	const LOADING_BODY_OPTIONS = [1, 2, 3, 4, 5];
-	const LOADING_LEG_OPTIONS = [1, 2, 3, 4];
-	const LOADING_TAGLINES = [
-		'Loading Ama...',
-		'垃圾袋拎好勢...',
-		'巷口彼台車欲來矣...',
-		'等咧就出門...',
-		'今日欲拚一粒好球...',
-		'阿罵 mode 載入中...',
-	];
-
-	function pad2(num) {
-		return String(num).padStart(2, '0');
-	}
-
-	function pickRandom(list) {
-		return list[Math.floor(Math.random() * list.length)];
-	}
-
-	function refreshLoadingHead() {
-		const suffix = headEyesOpen ? 'open' : 'close';
-		loadingHead.src = `loading-assets/head_${pad2(currentHeadIndex)}_${suffix}.png`;
-	}
-
-	function randomizeLoadingAma() {
-		currentHeadIndex = pickRandom(LOADING_HEAD_OPTIONS);
-		const bodyIndex = pickRandom(LOADING_BODY_OPTIONS);
-		const legsIndex = pickRandom(LOADING_LEG_OPTIONS);
-		headEyesOpen = true;
-		refreshLoadingHead();
-		loadingBody.src = `loading-assets/body_${pad2(bodyIndex)}_idle.png`;
-		loadingLegs.src = `loading-assets/legs_${pad2(legsIndex)}_idle.png`;
-		loadingRoll.textContent = pickRandom(LOADING_TAGLINES);
-	}
-
-	function stopLoadingAnimation() {
-		if (loadingBlinkInterval !== null) {
-			clearInterval(loadingBlinkInterval);
-			loadingBlinkInterval = null;
-		}
-		if (loadingComboInterval !== null) {
-			clearInterval(loadingComboInterval);
-			loadingComboInterval = null;
-		}
-	}
-
-	function startLoadingAnimation() {
-		randomizeLoadingAma();
-		stopLoadingAnimation();
-		loadingBlinkInterval = window.setInterval(() => {
-			headEyesOpen = !headEyesOpen;
-			refreshLoadingHead();
-		}, 360);
-		loadingComboInterval = window.setInterval(() => {
-			randomizeLoadingAma();
-		}, 1200);
-	}
-
-	startLoadingAnimation();
 
 	function setStatusMode(mode) {
 		if (statusMode === mode || !initializing) {
 			return;
 		}
 		if (mode === 'hidden') {
-			stopLoadingAnimation();
 			statusOverlay.remove();
 			initializing = false;
 			return;
@@ -346,7 +151,6 @@ const engine = new Engine(GODOT_CONFIG);
 	}
 
 	function displayFailureNotice(err) {
-		stopLoadingAnimation();
 		console.error(err);
 		if (err instanceof Error) {
 			setStatusNotice(err.message);
@@ -414,3 +218,4 @@ const engine = new Engine(GODOT_CONFIG);
 		</script>
 	</body>
 </html>
+
