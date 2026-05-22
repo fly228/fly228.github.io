@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1779355867|2426066';
+const CACHE_VERSION = '1779412187|2113405';
 /** @type {string} */
 const CACHE_PREFIX = 'AmaGame-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
