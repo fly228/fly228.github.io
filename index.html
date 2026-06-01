@@ -5,12 +5,19 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
 		<title>AmaGame</title>
 		<style>
-html, body, #canvas {
+:root {
+	--shell-base-width: 400px;
+	--shell-base-height: 870px;
+	--shell-scale: 1;
+}
+
+html, body {
 	margin: 0;
 	padding: 0;
 	border: 0;
 	width: 100%;
 	height: 100%;
+	background: #0d0d0d;
 }
 
 body {
@@ -25,8 +32,16 @@ body {
 
 #canvas {
 	display: block;
-	width: 100%;
-	height: 100%;
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	width: var(--shell-base-width);
+	height: var(--shell-base-height);
+	max-width: none;
+	max-height: none;
+	transform: translate(-50%, -50%) scale(var(--shell-scale));
+	transform-origin: center center;
+	will-change: transform;
 }
 
 #canvas:focus {
@@ -273,11 +288,14 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":34921848,"index.wasm":37685705},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":0,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":34921848,"index.wasm":37685705},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
 (function () {
+	const SHELL_BASE_WIDTH = 400;
+	const SHELL_BASE_HEIGHT = 870;
+	const canvas = document.getElementById('canvas');
 	const statusOverlay = document.getElementById('status');
 	const statusProgress = document.getElementById('status-progress');
 	const statusNotice = document.getElementById('status-notice');
@@ -304,6 +322,39 @@ const engine = new Engine(GODOT_CONFIG);
 		'今日欲拚一粒好球...',
 		'阿罵 mode 載入中...',
 	];
+
+	function getShellViewportSize() {
+		if (window.visualViewport) {
+			return {
+				width: window.visualViewport.width,
+				height: window.visualViewport.height,
+			};
+		}
+		return {
+			width: window.innerWidth,
+			height: window.innerHeight,
+		};
+	}
+
+	function shouldUseCoverMode(width, height) {
+		const portrait = height >= width;
+		const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+		return portrait && (coarsePointer || Math.min(width, height) <= 520);
+	}
+
+	function updateShellCanvasScale() {
+		const viewport = getShellViewportSize();
+		const useCoverMode = shouldUseCoverMode(viewport.width, viewport.height);
+		const scale = useCoverMode
+			? Math.max(viewport.width / SHELL_BASE_WIDTH, viewport.height / SHELL_BASE_HEIGHT)
+			: Math.min(viewport.width / SHELL_BASE_WIDTH, viewport.height / SHELL_BASE_HEIGHT);
+
+		document.body.classList.toggle('shell-cover-mode', useCoverMode);
+		document.body.classList.toggle('shell-contain-mode', !useCoverMode);
+		document.documentElement.style.setProperty('--shell-scale', String(scale));
+		canvas.style.width = `${SHELL_BASE_WIDTH}px`;
+		canvas.style.height = `${SHELL_BASE_HEIGHT}px`;
+	}
 
 	function pad2(num) {
 		return String(num).padStart(2, '0');
@@ -350,6 +401,14 @@ const engine = new Engine(GODOT_CONFIG);
 		loadingComboInterval = window.setInterval(() => {
 			randomizeLoadingAma();
 		}, 1200);
+	}
+
+	updateShellCanvasScale();
+	window.addEventListener('resize', updateShellCanvasScale);
+	window.addEventListener('orientationchange', updateShellCanvasScale);
+	if (window.visualViewport) {
+		window.visualViewport.addEventListener('resize', updateShellCanvasScale);
+		window.visualViewport.addEventListener('scroll', updateShellCanvasScale);
 	}
 
 	startLoadingAnimation();
