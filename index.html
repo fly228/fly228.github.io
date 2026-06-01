@@ -5,12 +5,6 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
 		<title>AmaGame</title>
 		<style>
-:root {
-	--shell-cover-scale: 1;
-	--shell-base-width: 400px;
-	--shell-base-height: 870px;
-}
-
 html, body, #canvas {
 	margin: 0;
 	padding: 0;
@@ -27,26 +21,12 @@ body {
 	overflow: hidden;
 	touch-action: none;
 	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
-	overscroll-behavior: none;
 }
 
 #canvas {
 	display: block;
 	width: 100%;
 	height: 100%;
-}
-
-body.shell-cover-mode #canvas {
-	position: fixed;
-	left: 50%;
-	top: 50%;
-	width: var(--shell-base-width);
-	height: var(--shell-base-height);
-	max-width: none;
-	max-height: none;
-	transform: translate(-50%, -50%) scale(var(--shell-cover-scale));
-	transform-origin: center center;
-	will-change: transform;
 }
 
 #canvas:focus {
@@ -298,9 +278,6 @@ const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
 (function () {
-	const SHELL_BASE_WIDTH = 400;
-	const SHELL_BASE_HEIGHT = 870;
-	const canvas = document.getElementById('canvas');
 	const statusOverlay = document.getElementById('status');
 	const statusProgress = document.getElementById('status-progress');
 	const statusNotice = document.getElementById('status-notice');
@@ -327,46 +304,6 @@ const engine = new Engine(GODOT_CONFIG);
 		'今日欲拚一粒好球...',
 		'阿罵 mode 載入中...',
 	];
-
-	function getShellViewportSize() {
-		if (window.visualViewport) {
-			return {
-				width: window.visualViewport.width,
-				height: window.visualViewport.height,
-			};
-		}
-		return {
-			width: window.innerWidth,
-			height: window.innerHeight,
-		};
-	}
-
-	function shouldUseCoverMode(width, height) {
-		const portrait = height >= width;
-		const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
-		return portrait && (coarsePointer || Math.min(width, height) <= 520);
-	}
-
-	function updateShellCanvasMode() {
-		const viewport = getShellViewportSize();
-		const coverMode = shouldUseCoverMode(viewport.width, viewport.height);
-		document.body.classList.toggle('shell-cover-mode', coverMode);
-
-		if (!coverMode) {
-			document.documentElement.style.setProperty('--shell-cover-scale', '1');
-			canvas.style.removeProperty('width');
-			canvas.style.removeProperty('height');
-			return;
-		}
-
-		const coverScale = Math.max(
-			viewport.width / SHELL_BASE_WIDTH,
-			viewport.height / SHELL_BASE_HEIGHT
-		);
-		document.documentElement.style.setProperty('--shell-cover-scale', String(coverScale));
-		canvas.style.width = `${SHELL_BASE_WIDTH}px`;
-		canvas.style.height = `${SHELL_BASE_HEIGHT}px`;
-	}
 
 	function pad2(num) {
 		return String(num).padStart(2, '0');
@@ -413,14 +350,6 @@ const engine = new Engine(GODOT_CONFIG);
 		loadingComboInterval = window.setInterval(() => {
 			randomizeLoadingAma();
 		}, 1200);
-	}
-
-	updateShellCanvasMode();
-	window.addEventListener('resize', updateShellCanvasMode);
-	window.addEventListener('orientationchange', updateShellCanvasMode);
-	if (window.visualViewport) {
-		window.visualViewport.addEventListener('resize', updateShellCanvasMode);
-		window.visualViewport.addEventListener('scroll', updateShellCanvasMode);
 	}
 
 	startLoadingAnimation();
