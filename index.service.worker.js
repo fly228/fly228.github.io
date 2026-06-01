@@ -104,6 +104,8 @@ self.addEventListener(
 			event.respondWith((async () => {
 				// Try to use cache first
 				const cache = await caches.open(CACHE_NAME);
+				const requestUrl = new URL(event.request.url);
+				const cacheKey = (isNavigate && (requestUrl.pathname === '/' || requestUrl.pathname.endsWith('/'))) ? CACHED_FILES[0] : event.request;
 				if (isNavigate) {
 					// Check if we have full cache during HTML page request.
 					/** @type {Response[]} */
@@ -121,7 +123,7 @@ self.addEventListener(
 						}
 					}
 				}
-				let cached = await cache.match(event.request);
+				let cached = await cache.match(cacheKey);
 				if (cached != null) {
 					if (ENSURE_CROSSORIGIN_ISOLATION_HEADERS) {
 						cached = ensureCrossOriginIsolationHeaders(cached);
@@ -163,4 +165,3 @@ self.addEventListener('message', (event) => {
 		}
 	});
 });
-
