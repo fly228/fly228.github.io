@@ -314,6 +314,7 @@ const engine = new Engine(GODOT_CONFIG);
 	let headEyesOpen = true;
 	let lastStableViewport = null;
 
+	const STANDALONE_BOTTOM_OVERSCAN = 48;
 	const LOADING_HEAD_OPTIONS = [1, 2, 3, 4, 5];
 	const LOADING_BODY_OPTIONS = [1, 2, 3, 4, 5];
 	const LOADING_LEG_OPTIONS = [1, 2, 3, 4];
@@ -354,9 +355,10 @@ const engine = new Engine(GODOT_CONFIG);
 		const layoutViewport = getLayoutViewportSize();
 		const screenWidth = window.screen ? window.screen.width : 0;
 		const screenHeight = window.screen ? window.screen.height : 0;
+		const bottomOverscan = isStandaloneDisplayMode() ? STANDALONE_BOTTOM_OVERSCAN : 0;
 		return {
 			width: Math.max(layoutViewport.width, screenWidth),
-			height: Math.max(layoutViewport.height, screenHeight),
+			height: Math.max(layoutViewport.height, screenHeight) + bottomOverscan,
 			offsetLeft: 0,
 			offsetTop: 0,
 		};
