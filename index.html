@@ -312,6 +312,7 @@ const engine = new Engine(GODOT_CONFIG);
 	let loadingComboInterval = null;
 	let currentHeadIndex = 1;
 	let headEyesOpen = true;
+	let lastStableViewport = null;
 
 	const LOADING_HEAD_OPTIONS = [1, 2, 3, 4, 5];
 	const LOADING_BODY_OPTIONS = [1, 2, 3, 4, 5];
@@ -349,6 +350,18 @@ const engine = new Engine(GODOT_CONFIG);
 		};
 	}
 
+	function getScreenViewportSize() {
+		const layoutViewport = getLayoutViewportSize();
+		const screenWidth = window.screen ? window.screen.width : 0;
+		const screenHeight = window.screen ? window.screen.height : 0;
+		return {
+			width: Math.max(layoutViewport.width, screenWidth),
+			height: Math.max(layoutViewport.height, screenHeight),
+			offsetLeft: 0,
+			offsetTop: 0,
+		};
+	}
+
 	function isStandaloneDisplayMode() {
 		return window.matchMedia('(display-mode: standalone)').matches
 			|| window.matchMedia('(display-mode: fullscreen)').matches
@@ -365,14 +378,44 @@ const engine = new Engine(GODOT_CONFIG);
 		return isStandaloneDisplayMode();
 	}
 
+	function isTextEntryFocused() {
+		const active = document.activeElement;
+		if (!active) {
+			return false;
+		}
+		const tagName = active.tagName ? active.tagName.toLowerCase() : '';
+		return tagName === 'input' || tagName === 'textarea' || active.isContentEditable;
+	}
+
+	function isKeyboardLikelyOpen(viewport) {
+		if (!window.visualViewport || !isTextEntryFocused()) {
+			return false;
+		}
+		const screenHeight = getScreenViewportSize().height;
+		return screenHeight - viewport.height > 140;
+	}
+
+	function getScaleViewport(viewport, useCoverMode) {
+		if (useCoverMode) {
+			return getScreenViewportSize();
+		}
+		const keyboardOpen = isKeyboardLikelyOpen(viewport);
+		if (!keyboardOpen) {
+			lastStableViewport = viewport;
+			return viewport;
+		}
+		return lastStableViewport || viewport;
+	}
+
 	function updateShellCanvasScale() {
 		const viewport = getShellViewportSize();
 		const useCoverMode = shouldUseCoverMode();
+		const scaleViewport = getScaleViewport(viewport, useCoverMode);
 		const scale = useCoverMode
-			? Math.max(viewport.width / SHELL_BASE_WIDTH, viewport.height / SHELL_BASE_HEIGHT)
-			: Math.min(viewport.width / SHELL_BASE_WIDTH, viewport.height / SHELL_BASE_HEIGHT);
-		const centerX = viewport.offsetLeft + (viewport.width / 2);
-		const centerY = viewport.offsetTop + (viewport.height / 2);
+			? Math.max(scaleViewport.width / SHELL_BASE_WIDTH, scaleViewport.height / SHELL_BASE_HEIGHT)
+			: Math.min(scaleViewport.width / SHELL_BASE_WIDTH, scaleViewport.height / SHELL_BASE_HEIGHT);
+		const centerX = scaleViewport.offsetLeft + (scaleViewport.width / 2);
+		const centerY = scaleViewport.offsetTop + (scaleViewport.height / 2);
 
 		if (canvas.width !== SHELL_BASE_WIDTH) {
 			canvas.width = SHELL_BASE_WIDTH;
