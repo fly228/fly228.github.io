@@ -259,7 +259,7 @@ body {
 		<style>input,textarea{font-size:16px!important;}</style>
 	</head>
 	<body>
-		<canvas id="canvas">
+		<canvas id="canvas" width="400" height="870">
 			Your browser does not support the canvas tag.
 		</canvas>
 
@@ -349,6 +349,12 @@ const engine = new Engine(GODOT_CONFIG);
 			? Math.max(viewport.width / SHELL_BASE_WIDTH, viewport.height / SHELL_BASE_HEIGHT)
 			: Math.min(viewport.width / SHELL_BASE_WIDTH, viewport.height / SHELL_BASE_HEIGHT);
 
+		if (canvas.width !== SHELL_BASE_WIDTH) {
+			canvas.width = SHELL_BASE_WIDTH;
+		}
+		if (canvas.height !== SHELL_BASE_HEIGHT) {
+			canvas.height = SHELL_BASE_HEIGHT;
+		}
 		document.body.classList.toggle('shell-cover-mode', useCoverMode);
 		document.body.classList.toggle('shell-contain-mode', !useCoverMode);
 		document.documentElement.style.setProperty('--shell-scale', String(scale));
