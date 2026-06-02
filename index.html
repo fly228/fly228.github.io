@@ -32,6 +32,15 @@ body {
 	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
 }
 
+body.shell-cover-mode {
+	position: fixed;
+	inset: 0;
+	width: 100vw;
+	height: 100vh;
+	height: 100lvh;
+	overscroll-behavior: none;
+}
+
 #canvas {
 	display: block;
 	position: fixed;
@@ -313,8 +322,10 @@ const engine = new Engine(GODOT_CONFIG);
 	let currentHeadIndex = 1;
 	let headEyesOpen = true;
 	let lastStableViewport = null;
+	let standaloneLaunchViewport = null;
+	let applyingShellScale = false;
 
-	const STANDALONE_BOTTOM_OVERSCAN = 36;
+	const STANDALONE_BOTTOM_OVERSCAN = 0;
 	const LOADING_HEAD_OPTIONS = [1, 2, 3, 4, 5];
 	const LOADING_BODY_OPTIONS = [1, 2, 3, 4, 5];
 	const LOADING_LEG_OPTIONS = [1, 2, 3, 4];
@@ -351,17 +362,35 @@ const engine = new Engine(GODOT_CONFIG);
 		};
 	}
 
-	function getScreenViewportSize() {
+	function getDeviceViewportSize() {
 		const layoutViewport = getLayoutViewportSize();
+		const visualViewport = getShellViewportSize();
 		const screenWidth = window.screen ? window.screen.width : 0;
 		const screenHeight = window.screen ? window.screen.height : 0;
-		const bottomOverscan = isStandaloneDisplayMode() ? STANDALONE_BOTTOM_OVERSCAN : 0;
 		return {
-			width: Math.max(layoutViewport.width, screenWidth),
-			height: Math.max(layoutViewport.height, screenHeight) + bottomOverscan,
+			width: Math.max(layoutViewport.width, visualViewport.width, screenWidth),
+			height: Math.max(layoutViewport.height, visualViewport.height, screenHeight),
 			offsetLeft: 0,
 			offsetTop: 0,
 		};
+	}
+
+	function getScreenViewportSize() {
+		const viewport = getDeviceViewportSize();
+		const bottomOverscan = isStandaloneDisplayMode() ? STANDALONE_BOTTOM_OVERSCAN : 0;
+		return {
+			width: viewport.width,
+			height: viewport.height + bottomOverscan,
+			offsetLeft: 0,
+			offsetTop: 0,
+		};
+	}
+
+	function getStandaloneLaunchViewport() {
+		if (standaloneLaunchViewport === null) {
+			standaloneLaunchViewport = getScreenViewportSize();
+		}
+		return standaloneLaunchViewport;
 	}
 
 	function isStandaloneDisplayMode() {
@@ -393,13 +422,15 @@ const engine = new Engine(GODOT_CONFIG);
 		if (!window.visualViewport || !isTextEntryFocused()) {
 			return false;
 		}
-		const screenHeight = getScreenViewportSize().height;
+		const screenHeight = isStandaloneDisplayMode()
+			? getStandaloneLaunchViewport().height
+			: getScreenViewportSize().height;
 		return screenHeight - viewport.height > 140;
 	}
 
 	function getScaleViewport(viewport, useCoverMode) {
 		if (useCoverMode) {
-			return getScreenViewportSize();
+			return getStandaloneLaunchViewport();
 		}
 		const keyboardOpen = isKeyboardLikelyOpen(viewport);
 		if (!keyboardOpen) {
@@ -407,6 +438,28 @@ const engine = new Engine(GODOT_CONFIG);
 			return viewport;
 		}
 		return lastStableViewport || viewport;
+	}
+
+	function enableVirtualKeyboardOverlay() {
+		if (!('virtualKeyboard' in navigator)) {
+			return;
+		}
+		try {
+			navigator.virtualKeyboard.overlaysContent = true;
+		} catch (error) {
+			// Safari may expose partial keyboard APIs; ignore and keep the shell lock.
+		}
+	}
+
+	function enforceShellCanvasSize() {
+		if (canvas.width !== SHELL_BASE_WIDTH) {
+			canvas.width = SHELL_BASE_WIDTH;
+		}
+		if (canvas.height !== SHELL_BASE_HEIGHT) {
+			canvas.height = SHELL_BASE_HEIGHT;
+		}
+		canvas.style.width = `${SHELL_BASE_WIDTH}px`;
+		canvas.style.height = `${SHELL_BASE_HEIGHT}px`;
 	}
 
 	function updateShellCanvasScale() {
@@ -421,19 +474,23 @@ const engine = new Engine(GODOT_CONFIG);
 			? (SHELL_BASE_HEIGHT * scale) / 2
 			: scaleViewport.offsetTop + (scaleViewport.height / 2);
 
-		if (canvas.width !== SHELL_BASE_WIDTH) {
-			canvas.width = SHELL_BASE_WIDTH;
-		}
-		if (canvas.height !== SHELL_BASE_HEIGHT) {
-			canvas.height = SHELL_BASE_HEIGHT;
-		}
+		applyingShellScale = true;
+		enforceShellCanvasSize();
 		document.body.classList.toggle('shell-cover-mode', useCoverMode);
 		document.body.classList.toggle('shell-contain-mode', !useCoverMode);
 		document.documentElement.style.setProperty('--shell-scale', String(scale));
 		document.documentElement.style.setProperty('--shell-center-x', `${centerX}px`);
 		document.documentElement.style.setProperty('--shell-center-y', `${centerY}px`);
-		canvas.style.width = `${SHELL_BASE_WIDTH}px`;
-		canvas.style.height = `${SHELL_BASE_HEIGHT}px`;
+		window.requestAnimationFrame(() => {
+			applyingShellScale = false;
+		});
+	}
+
+	function relockShellAfterViewportChange() {
+		updateShellCanvasScale();
+		[60, 180, 420, 900, 1600].forEach((delay) => {
+			window.setTimeout(updateShellCanvasScale, delay);
+		});
 	}
 
 	function pad2(num) {
@@ -483,13 +540,22 @@ const engine = new Engine(GODOT_CONFIG);
 		}, 1200);
 	}
 
+	enableVirtualKeyboardOverlay();
 	updateShellCanvasScale();
-	window.addEventListener('resize', updateShellCanvasScale);
-	window.addEventListener('orientationchange', updateShellCanvasScale);
+	window.addEventListener('resize', relockShellAfterViewportChange);
+	window.addEventListener('orientationchange', relockShellAfterViewportChange);
+	window.addEventListener('focusin', relockShellAfterViewportChange, true);
+	window.addEventListener('focusout', relockShellAfterViewportChange, true);
+	window.addEventListener('pageshow', relockShellAfterViewportChange);
 	if (window.visualViewport) {
-		window.visualViewport.addEventListener('resize', updateShellCanvasScale);
-		window.visualViewport.addEventListener('scroll', updateShellCanvasScale);
+		window.visualViewport.addEventListener('resize', relockShellAfterViewportChange);
+		window.visualViewport.addEventListener('scroll', relockShellAfterViewportChange);
 	}
+	new MutationObserver(() => {
+		if (!applyingShellScale) {
+			window.requestAnimationFrame(updateShellCanvasScale);
+		}
+	}).observe(canvas, { attributes: true, attributeFilter: ['height', 'style', 'width'] });
 
 	startLoadingAnimation();
 
