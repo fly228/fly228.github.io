@@ -314,7 +314,7 @@ const engine = new Engine(GODOT_CONFIG);
 	let headEyesOpen = true;
 	let lastStableViewport = null;
 
-	const STANDALONE_BOTTOM_OVERSCAN = 48;
+	const STANDALONE_BOTTOM_OVERSCAN = 36;
 	const LOADING_HEAD_OPTIONS = [1, 2, 3, 4, 5];
 	const LOADING_BODY_OPTIONS = [1, 2, 3, 4, 5];
 	const LOADING_LEG_OPTIONS = [1, 2, 3, 4];
@@ -417,7 +417,9 @@ const engine = new Engine(GODOT_CONFIG);
 			? Math.max(scaleViewport.width / SHELL_BASE_WIDTH, scaleViewport.height / SHELL_BASE_HEIGHT)
 			: Math.min(scaleViewport.width / SHELL_BASE_WIDTH, scaleViewport.height / SHELL_BASE_HEIGHT);
 		const centerX = scaleViewport.offsetLeft + (scaleViewport.width / 2);
-		const centerY = scaleViewport.offsetTop + (scaleViewport.height / 2);
+		const centerY = useCoverMode
+			? (SHELL_BASE_HEIGHT * scale) / 2
+			: scaleViewport.offsetTop + (scaleViewport.height / 2);
 
 		if (canvas.width !== SHELL_BASE_WIDTH) {
 			canvas.width = SHELL_BASE_WIDTH;
