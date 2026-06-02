@@ -9,6 +9,8 @@
 	--shell-base-width: 400px;
 	--shell-base-height: 870px;
 	--shell-scale: 1;
+	--shell-center-x: 50%;
+	--shell-center-y: 50%;
 }
 
 html, body {
@@ -33,8 +35,8 @@ body {
 #canvas {
 	display: block;
 	position: fixed;
-	left: 50%;
-	top: 50%;
+	left: var(--shell-center-x);
+	top: var(--shell-center-y);
 	width: var(--shell-base-width);
 	height: var(--shell-base-height);
 	max-width: none;
@@ -328,26 +330,49 @@ const engine = new Engine(GODOT_CONFIG);
 			return {
 				width: window.visualViewport.width,
 				height: window.visualViewport.height,
+				offsetLeft: window.visualViewport.offsetLeft,
+				offsetTop: window.visualViewport.offsetTop,
 			};
 		}
+		return {
+			width: window.innerWidth,
+			height: window.innerHeight,
+			offsetLeft: 0,
+			offsetTop: 0,
+		};
+	}
+
+	function getLayoutViewportSize() {
 		return {
 			width: window.innerWidth,
 			height: window.innerHeight,
 		};
 	}
 
-	function shouldUseCoverMode(width, height) {
-		const portrait = height >= width;
+	function isStandaloneDisplayMode() {
+		return window.matchMedia('(display-mode: standalone)').matches
+			|| window.matchMedia('(display-mode: fullscreen)').matches
+			|| window.navigator.standalone === true;
+	}
+
+	function shouldUseCoverMode() {
+		const layoutViewport = getLayoutViewportSize();
+		const portrait = layoutViewport.height >= layoutViewport.width;
 		const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
-		return portrait && (coarsePointer || Math.min(width, height) <= 520);
+		if (!portrait || (!coarsePointer && Math.min(layoutViewport.width, layoutViewport.height) > 520)) {
+			return false;
+		}
+		return isStandaloneDisplayMode();
 	}
 
 	function updateShellCanvasScale() {
 		const viewport = getShellViewportSize();
-		const useCoverMode = shouldUseCoverMode(viewport.width, viewport.height);
+		const useCoverMode = shouldUseCoverMode();
 		const scale = useCoverMode
 			? Math.max(viewport.width / SHELL_BASE_WIDTH, viewport.height / SHELL_BASE_HEIGHT)
 			: Math.min(viewport.width / SHELL_BASE_WIDTH, viewport.height / SHELL_BASE_HEIGHT);
+		const centerX = viewport.offsetLeft + (viewport.width / 2);
+		const centerY = viewport.offsetTop + (viewport.height / 2);
 
 		if (canvas.width !== SHELL_BASE_WIDTH) {
 			canvas.width = SHELL_BASE_WIDTH;
@@ -358,6 +383,8 @@ const engine = new Engine(GODOT_CONFIG);
 		document.body.classList.toggle('shell-cover-mode', useCoverMode);
 		document.body.classList.toggle('shell-contain-mode', !useCoverMode);
 		document.documentElement.style.setProperty('--shell-scale', String(scale));
+		document.documentElement.style.setProperty('--shell-center-x', `${centerX}px`);
+		document.documentElement.style.setProperty('--shell-center-y', `${centerY}px`);
 		canvas.style.width = `${SHELL_BASE_WIDTH}px`;
 		canvas.style.height = `${SHELL_BASE_HEIGHT}px`;
 	}
@@ -511,4 +538,3 @@ const engine = new Engine(GODOT_CONFIG);
 		</script>
 	</body>
 </html>
-
