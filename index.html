@@ -290,7 +290,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":0,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":34921848,"index.wasm":37685705},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":0,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":34921848,"index.wasm":37685705},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -431,17 +431,6 @@ const engine = new Engine(GODOT_CONFIG);
 		return lastStableViewport || viewport;
 	}
 
-	function enableVirtualKeyboardOverlay() {
-		if (!('virtualKeyboard' in navigator)) {
-			return;
-		}
-		try {
-			navigator.virtualKeyboard.overlaysContent = true;
-		} catch (error) {
-			// Safari may expose partial keyboard APIs; ignore and keep the shell lock.
-		}
-	}
-
 	function enforceShellCanvasSize() {
 		if (canvas.width !== SHELL_BASE_WIDTH) {
 			canvas.width = SHELL_BASE_WIDTH;
@@ -531,7 +520,6 @@ const engine = new Engine(GODOT_CONFIG);
 		}, 1200);
 	}
 
-	enableVirtualKeyboardOverlay();
 	updateShellCanvasScale();
 	window.addEventListener('resize', relockShellAfterViewportChange);
 	window.addEventListener('orientationchange', relockShellAfterViewportChange);
