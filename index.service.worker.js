@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1780363027|2703434|stable-d539aa2-20260603';
+const CACHE_VERSION = '1779412187|2113405|restore-20260522-20260603';
 /** @type {string} */
 const CACHE_PREFIX = 'AmaGame-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
@@ -104,8 +104,6 @@ self.addEventListener(
 			event.respondWith((async () => {
 				// Try to use cache first
 				const cache = await caches.open(CACHE_NAME);
-				const requestUrl = new URL(event.request.url);
-				const cacheKey = (isNavigate && (requestUrl.pathname === '/' || requestUrl.pathname.endsWith('/'))) ? CACHED_FILES[0] : event.request;
 				if (isNavigate) {
 					// Check if we have full cache during HTML page request.
 					/** @type {Response[]} */
@@ -123,7 +121,7 @@ self.addEventListener(
 						}
 					}
 				}
-				let cached = await cache.match(cacheKey);
+				let cached = await cache.match(event.request);
 				if (cached != null) {
 					if (ENSURE_CROSSORIGIN_ISOLATION_HEADERS) {
 						cached = ensureCrossOriginIsolationHeaders(cached);
